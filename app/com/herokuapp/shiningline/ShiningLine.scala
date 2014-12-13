@@ -1,11 +1,13 @@
 package com.herokuapp.shiningline
 
 import com.typesafe.config.{Config, ConfigFactory}
-import play.api.GlobalSettings
+import julienrf.play.jsonp.Jsonp
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import play.api.mvc.WithFilters
 import twitter4j.conf.ConfigurationBuilder
 import twitter4j.{Twitter, TwitterFactory}
 
-object ShiningLine extends GlobalSettings {
+object ShiningLine extends WithFilters(new Jsonp) {
   lazy val config: Config = ConfigFactory.load
 
   lazy val twitter: Twitter = {

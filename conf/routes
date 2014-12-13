@@ -1,2 +1,2 @@
-GET / com.herokuapp.shiningline.controllers.Application.index
+GET /stickers/:stkVer/:pkgId/:stkId.json com.herokuapp.shiningline.controllers.Application.getSticker(stkVer: Int, pkgId: Int, stkId: Int)
 

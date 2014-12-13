@@ -2,9 +2,12 @@ package com.herokuapp.shiningline.controllers
 
 import com.herokuapp.shiningline.ShiningLine
 import com.herokuapp.shiningline.services._
+import com.herokuapp.shiningline.models._
 
 import play.api._
+import play.api.libs.json._
 import play.api.mvc._
+import scala.concurrent.Future
 import scala.util.{Try, Success, Failure}
 import twitter4j.Twitter
 
@@ -19,9 +22,13 @@ trait ApplicationController extends Controller {
 
   implicit val context = play.api.libs.concurrent.Execution.Implicits.defaultContext
 
-  def index = Action.async {
-    val f = twitterService.updateWithMediaFromUrl("http://dl.stickershop.line.naver.jp/products/0/0/1/3436/android/stickers/2487530.png")
-    f.map{ x => Ok(x) }.recover{ case e => throw e }
+  def getSticker(stickerVersion: Int, packageId: Int, stickerId: Int) = Action.async {
+    val s = Sticker(
+      stickerVersion = stickerVersion,
+      packageId = packageId,
+      stickerId = stickerId,
+      url = "http://example.com/sticker.png")
+    Future.successful(Ok(Json.toJson(s)))
   }
 }
 
