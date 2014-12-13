@@ -6,7 +6,7 @@ import play.api.libs.iteratee.{Enumerator, Iteratee}
 import play.api.libs.ws._
 import scala.concurrent.Future
 import twitter4j.conf.ConfigurationBuilder
-import twitter4j.{Twitter, TwitterFactory, StatusUpdate}
+import twitter4j.{Twitter, TwitterFactory, Status, StatusUpdate}
 
 trait TwitterService {
   def updateWithMediaFromUrl(url: String): Future[String]
@@ -20,9 +20,16 @@ class TwitterServiceImpl(val twitter: Twitter) {
   implicit val context = play.api.libs.concurrent.Execution.Implicits.defaultContext
 
   def updateWithMediaFromUrl(urlString: String): Future[String] = {
+    val f = getBytesFromUrl(urlString)
 
+    f.map { (byteStream: ByteArrayInputStream) =>
+      updateStatusWithMedia(byteStream).getText
+    }
+  }
+
+  private def getBytesFromUrl(urlString: String): Future[ByteArrayInputStream] = {
     val stream: Future[(WSResponseHeaders, Enumerator[Array[Byte]])] =
-      WS.url(urlString).getStream()
+      WS.url(urlString).getStream
 
     val f: Future[ByteArrayInputStream] = stream.flatMap { case (headers, body) =>
       val it = Iteratee.consume[Array[Byte]]().map { (bytes: Array[Byte]) =>
@@ -31,26 +38,13 @@ class TwitterServiceImpl(val twitter: Twitter) {
       body.run(it)
     }
 
-    f.map { is =>
-      val status: StatusUpdate = new StatusUpdate("").media(urlString, is)
+    f
+  }
 
-      val updatedStatus = twitter.updateStatus(status)
-      updatedStatus.getText
-    }
-
-    /*
-    val url = new java.net.URL(urlString)
-    val img = javax.imageio.ImageIO.read(url)
-    val os = new java.io.ByteArrayOutputStream()
-    javax.imageio.ImageIO.write(img, "image/png", os)
-    val is = new java.io.ByteArrayInputStream(os.toByteArray)
-
-    val status: StatusUpdate = new StatusUpdate("").media("hello", is)
-    status.setMedia(new java.io.File(urlString))
-
-    val updatedStatus = twitter.updateStatus(status)
-    updatedStatus.getMediaEntities.headOption.map(_.getMediaURL).getOrElse("")
-    */
+  private def updateStatusWithMedia(byteStream: ByteArrayInputStream): Status = {
+    val newStatus: StatusUpdate = new StatusUpdate("").media("", byteStream)
+    val updatedStatus: Status = twitter.updateStatus(newStatus)
+    updatedStatus
   }
 }
 
