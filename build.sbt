@@ -1,4 +1,4 @@
-name := """SHINING LINE"""
+name := """Shining LINE"""
 
 version := "1.0-SNAPSHOT"
 

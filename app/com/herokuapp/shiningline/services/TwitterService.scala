@@ -1,12 +1,11 @@
-package services
+package com.herokuapp.shiningline.services
 
 import java.io.ByteArrayInputStream
 import play.api.Play.current
 import play.api.libs.iteratee.{Enumerator, Iteratee}
 import play.api.libs.ws._
 import scala.concurrent.Future
-import twitter4j.conf.ConfigurationBuilder
-import twitter4j.{Twitter, TwitterFactory, Status, StatusUpdate}
+import twitter4j.{Twitter, Status, StatusUpdate}
 
 trait TwitterService {
   def updateWithMediaFromUrl(url: String): Future[String]
@@ -16,7 +15,7 @@ trait TwitterServiceComponent {
   def twitterService: TwitterService
 }
 
-class TwitterServiceImpl(val twitter: Twitter) {
+class TwitterServiceImpl(val twitter: Twitter) extends TwitterService {
   implicit val context = play.api.libs.concurrent.Execution.Implicits.defaultContext
 
   def updateWithMediaFromUrl(urlString: String): Future[String] = {
@@ -48,16 +47,8 @@ class TwitterServiceImpl(val twitter: Twitter) {
   }
 }
 
-class TwitterServiceComponentImpl {
-  val cb: ConfigurationBuilder = new ConfigurationBuilder()
-    .setDebugEnabled(true)
-    .setOAuthConsumerKey("")
-    .setOAuthConsumerSecret("")
-    .setOAuthAccessToken("")
-    .setOAuthAccessTokenSecret("");
-
-  val twitter: Twitter = new TwitterFactory(cb.build()).getInstance()
-
-  val twitterService = new TwitterServiceImpl(twitter)
+trait TwitterServiceComponentImpl extends TwitterServiceComponent {
+  def twitter: Twitter
+  val twitterService: TwitterServiceImpl = new TwitterServiceImpl(twitter)
 }
 
