@@ -7,8 +7,8 @@ import scala.slick.jdbc.JdbcBackend.Database
 
 trait StickersService {
   def getUrl(stickerVersion: Int, packageId: Int, stickerId: Int): String
-  def findSticker(stickerVersion: Int, packageId: Int, stickerId: Int): Option[Sticker]
-  def saveSticker(sticker: Sticker): Unit
+  def find(stickerVersion: Int, packageId: Int, stickerId: Int): Option[Sticker]
+  def save(sticker: Sticker): Unit
 }
 
 trait StickersServiceComponent {
@@ -31,13 +31,13 @@ class SlickStickersService(
     s"$lineUrl/$verPath/$packageId/android/stickers/$stickerId.png"
   }
 
-  def saveSticker(sticker: Sticker): Unit = {
+  def save(sticker: Sticker): Unit = {
     db.withSession { implicit session =>
       dao.stickers.insertOrUpdate(sticker).run
     }
   }
 
-  def findSticker(
+  def find(
       stickerVersion: Int,
       packageId: Int,
       stickerId: Int): Option[Sticker] = {

@@ -24,39 +24,39 @@ class StickersServiceSpec extends Specification with Mockito {
       }
     }
 
-    "saveSticker and findSticker" should {
+    "save and find " should {
       "return the saved sticker" in new WithApplication {
         val dao = new DAO(DB.driver)
         val stickersService = new SlickStickersService(DB, dao)
 
         val sticker = Sticker(1, 2, 3, "hello")
-        stickersService.saveSticker(sticker)
+        stickersService.save(sticker)
 
-        stickersService.findSticker(1, 2, 3) must beSome(sticker)
+        stickersService.find(1, 2, 3) must beSome(sticker)
       }
     }
 
-    "saveSticker" should {
+    "save" should {
       "overwrite existing stickers" in new WithApplication {
         val dao = new DAO(DB.driver)
         val stickersService = new SlickStickersService(DB, dao)
 
         val sticker1 = Sticker(7, 6, 5, "hello")
-        stickersService.saveSticker(sticker1)
+        stickersService.save(sticker1)
 
         val sticker2 = Sticker(7, 6, 5, "world")
-        stickersService.saveSticker(sticker2)
+        stickersService.save(sticker2)
 
-        stickersService.findSticker(7, 6, 5) must beSome(sticker2)
+        stickersService.find(7, 6, 5) must beSome(sticker2)
       }
     }
 
-    "findSticker" should {
+    "find" should {
       "return None if no sticker found" in new WithApplication {
         val dao = new DAO(DB.driver)
         val stickersService = new SlickStickersService(DB, dao)
 
-        stickersService.findSticker(25, 25, 2) must beNone
+        stickersService.find(25, 25, 2) must beNone
       }
     }
   }
