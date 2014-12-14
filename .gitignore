@@ -12,6 +12,6 @@ target
 tmp
 
 *.swp
-*.swp
+*.swo
 *.local
 
