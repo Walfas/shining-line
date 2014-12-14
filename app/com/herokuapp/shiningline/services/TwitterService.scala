@@ -31,6 +31,10 @@ class TwitterServiceImpl(val twitter: Twitter) extends TwitterService {
       WS.url(urlString).getStream
 
     val f: Future[ByteArrayInputStream] = stream.flatMap { case (headers, body) =>
+      if (headers.status >= 400) {
+        throw new java.io.FileNotFoundException(headers.status.toString + " error from " + urlString)
+      }
+
       val it = Iteratee.consume[Array[Byte]]().map { (bytes: Array[Byte]) =>
         new ByteArrayInputStream(bytes)
       }
