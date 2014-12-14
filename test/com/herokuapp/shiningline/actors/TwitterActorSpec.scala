@@ -8,34 +8,35 @@ import org.specs2.mutable._
 import scala.concurrent.Future
 
 class TwitterActorSpec extends Specification with Mockito with ActorSpecHelpers {
-  "TwitterActor" should {
+  "TwitterActor" >> {
     import TwitterActor._
 
-    "send TweetSuccess on successful" in new ActorSpec {
-      val mockTS = mock[TwitterService]
-      mockTS.updateWithMediaFromUrl(any[String]) returns Future.successful("output")
+    val mockTS = mock[TwitterService]
+    val actor = TestActorRef(TwitterActor.props(mockTS))
 
-      val actor = TestActorRef(TwitterActor.props(mockTS))
-      val id = Messages.Id(1, 2, 3)
-      actor ! TweetUploadRequest(id, "input")
+    "when receiving TweetUploadRequest" should {
+      "send TweetSuccess on successful" in new ActorSpec {
+        mockTS.updateWithMediaFromUrl("success") returns Future.successful("output")
 
-      there was one(mockTS).updateWithMediaFromUrl("input")
+        val id = Messages.Id(1, 2, 3)
+        actor ! TweetUploadRequest(id, "success")
 
-      expectMsg(TweetSuccess(id, "output"))
-    }
+        there was one(mockTS).updateWithMediaFromUrl("success")
 
-    "send TweetFailure on failure" in new ActorSpec {
-      val mockTS = mock[TwitterService]
-      val exception = new IllegalStateException("Oh no")
-      mockTS.updateWithMediaFromUrl(any[String]) returns Future.failed(exception)
+        expectMsg(TweetSuccess(id, "output"))
+      }
 
-      val actor = TestActorRef(TwitterActor.props(mockTS))
-      val id = Messages.Id(1, 2, 3)
-      actor ! TweetUploadRequest(id, "input")
+      "send TweetFailure on failure" in new ActorSpec {
+        val exception = new IllegalStateException("Oh no")
+        mockTS.updateWithMediaFromUrl("failure") returns Future.failed(exception)
 
-      there was one(mockTS).updateWithMediaFromUrl("input")
+        val id = Messages.Id(1, 2, 3)
+        actor ! TweetUploadRequest(id, "failure")
 
-      expectMsg(TweetFailure(id, exception))
+        there was one(mockTS).updateWithMediaFromUrl("failure")
+
+        expectMsg(TweetFailure(id, exception))
+      }
     }
   }
 }
