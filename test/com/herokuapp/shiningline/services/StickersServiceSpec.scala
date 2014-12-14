@@ -10,18 +10,40 @@ import play.api.test.Helpers._
 
 class StickersServiceSpec extends Specification {
   "SlickStickersService" >> {
-    val fakeApp: FakeApplication =
-      FakeApplication(additionalConfiguration = inMemoryDatabase())
 
     "saveSticker and findSticker" should {
-      "return the sticker" in new WithApplication(fakeApp) {
+      "return the saved sticker" in new WithApplication {
         val dao = new DAO(DB.driver)
         val stickersService = new SlickStickersService(DB, dao)
 
         val sticker = Sticker(1, 2, 3, "hello")
         stickersService.saveSticker(sticker)
 
-        stickersService.findSticker(1, 2, 3) must_== Some(sticker)
+        stickersService.findSticker(1, 2, 3) must beSome(sticker)
+      }
+    }
+
+    "saveSticker" should {
+      "overwrite existing stickers" in new WithApplication {
+        val dao = new DAO(DB.driver)
+        val stickersService = new SlickStickersService(DB, dao)
+
+        val sticker1 = Sticker(7, 6, 5, "hello")
+        stickersService.saveSticker(sticker1)
+
+        val sticker2 = Sticker(7, 6, 5, "world")
+        stickersService.saveSticker(sticker2)
+
+        stickersService.findSticker(7, 6, 5) must beSome(sticker2)
+      }
+    }
+
+    "findSticker" should {
+      "return None if no sticker found" in new WithApplication {
+        val dao = new DAO(DB.driver)
+        val stickersService = new SlickStickersService(DB, dao)
+
+        stickersService.findSticker(25, 25, 2) must beNone
       }
     }
   }
