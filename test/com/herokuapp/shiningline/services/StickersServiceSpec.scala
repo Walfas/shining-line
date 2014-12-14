@@ -24,8 +24,11 @@ class StickersServiceSpec extends Specification with Mockito {
       }
     }
 
+    def fakeApp(): FakeApplication =
+      FakeApplication(additionalConfiguration = inMemoryDatabase())
+
     "save and find " should {
-      "return the saved sticker" in new WithApplication {
+      "return the saved sticker" in new WithApplication(fakeApp) {
         val dao = new DAO(DB.driver)
         val stickersService = new SlickStickersService(DB, dao)
 
@@ -37,7 +40,7 @@ class StickersServiceSpec extends Specification with Mockito {
     }
 
     "save" should {
-      "overwrite existing stickers" in new WithApplication {
+      "overwrite existing stickers" in new WithApplication(fakeApp) {
         val dao = new DAO(DB.driver)
         val stickersService = new SlickStickersService(DB, dao)
 
@@ -52,7 +55,7 @@ class StickersServiceSpec extends Specification with Mockito {
     }
 
     "find" should {
-      "return None if no sticker found" in new WithApplication {
+      "return None if no sticker found" in new WithApplication(fakeApp) {
         val dao = new DAO(DB.driver)
         val stickersService = new SlickStickersService(DB, dao)
 

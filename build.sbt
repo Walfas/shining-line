@@ -14,6 +14,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-slick" % "0.8.1",
   "org.twitter4j" % "twitter4j-core" % "4.0.2",
   "org.twitter4j" % "twitter4j-media-support" % "4.0.2",
-  "org.julienrf" %% "play-jsonp-filter" % "1.2"
+  "org.julienrf" %% "play-jsonp-filter" % "1.2",
+  "org.xerial" % "sqlite-jdbc" % "3.8.7"
 )
 
