@@ -9,6 +9,7 @@ import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import play.api._
+import play.api.cache.Cached
 import play.api.libs.json._
 import play.api.mvc._
 import scala.concurrent.{ExecutionContext, Future, Promise}
@@ -23,10 +24,12 @@ object Application
   lazy val twitterService: TwitterService = ShiningLine.twitterService
   lazy val stickersService: StickersService = ShiningLine.stickersService
   lazy implicit val timeout: Timeout = Duration(ShiningLine.timeout, MILLISECONDS)
+
+  implicit val application: Application = play.api.Play.current
 }
 
 trait ApplicationController extends Controller {
-  def getSticker(stickerVersion: Int, packageId: Int, stickerId: Int): Action[AnyContent]
+  def getSticker(stickerVersion: Int, packageId: Int, stickerId: Int): EssentialAction
 }
 
 trait ApplicationControllerActors extends ApplicationController {
@@ -37,22 +40,28 @@ trait ApplicationControllerActors extends ApplicationController {
   implicit val context: ExecutionContext =
     play.api.libs.concurrent.Execution.Implicits.defaultContext
 
-  def getSticker(stickerVersion: Int, packageId: Int, stickerId: Int) = Action.async {
-    val msg = ManagerActor.StickerRequest(Messages.Id(stickerVersion, packageId, stickerId))
-    val f: Future[Any] = managerActor ? msg
+  implicit val application: Application
 
-    f.map {
-      case ManagerActor.StickerSuccess(sticker) => {
-        Ok(Json.toJson(sticker))
-      }
-      case ManagerActor.StickerFailure(e) => {
-        val error = Error("500", e.toString)
-        InternalServerError(Json.toJson(error))
-      }
-    } recover {
-      case e: Throwable => {
-        val error = Error("500", e.toString)
-        InternalServerError(Json.toJson(error))
+
+  def getSticker(stickerVersion: Int, packageId: Int, stickerId: Int) =
+  Cached.status(_ => s"$stickerVersion/$packageId/$stickerId", 200) {
+    Action.async {
+      val msg = ManagerActor.StickerRequest(Messages.Id(stickerVersion, packageId, stickerId))
+      val f: Future[Any] = managerActor ? msg
+
+      f.map {
+        case ManagerActor.StickerSuccess(sticker) => {
+          Ok(Json.toJson(sticker))
+        }
+        case ManagerActor.StickerFailure(e) => {
+          val error = Error("500", e.toString)
+          InternalServerError(Json.toJson(error))
+        }
+      } recover {
+        case e: Throwable => {
+          val error = Error("500", e.toString)
+          InternalServerError(Json.toJson(error))
+        }
       }
     }
   }
