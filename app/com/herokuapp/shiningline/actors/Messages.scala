@@ -4,8 +4,8 @@ import com.herokuapp.shiningline.models.Sticker
 
 object Messages {
   case class Id(
-      stickerVersion: Int,
-      packageId: Int,
-      stickerId: Int)
+      stickerVersion: Int = 0,
+      packageId: Int = 0,
+      stickerId: Int = 0)
 }
 
