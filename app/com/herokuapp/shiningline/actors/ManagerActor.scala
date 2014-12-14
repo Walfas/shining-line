@@ -19,6 +19,10 @@ object ManagerActor {
     Props(new ManagerActor(dbActor, twitterActor))
 }
 
+trait ManagerActorComponent {
+  def managerActor: ActorRef
+}
+
 class ManagerActor(dbActor: ActorRef, twitterActor: ActorRef) extends Actor {
   import ManagerActor._
   import context.dispatcher // ExecutionContext for Futures
