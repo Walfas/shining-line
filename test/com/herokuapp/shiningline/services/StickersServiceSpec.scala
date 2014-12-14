@@ -2,14 +2,27 @@ package com.herokuapp.shiningline.services
 
 import com.herokuapp.shiningline.models._
 
+import org.specs2.mock._
 import org.specs2.mutable._
 import play.api.db.slick.Config.driver.simple._
 import play.api.db.slick.DB
-import play.api.test._
 import play.api.test.Helpers._
+import play.api.test._
+import scala.slick.jdbc.JdbcBackend.Database
 
-class StickersServiceSpec extends Specification {
+class StickersServiceSpec extends Specification with Mockito {
   "SlickStickersService" >> {
+
+    "getUrl" should {
+      val baseUrl = "http://example.com"
+      val stickersService = new SlickStickersService(
+        mock[Database], mock[DAO], baseUrl)
+
+      "return the correct URL" in {
+        val result: String = stickersService.getUrl(1, 2, 3)
+        result must_== "http://example.com/0/0/1/2/android/stickers/3.png"
+      }
+    }
 
     "saveSticker and findSticker" should {
       "return the saved sticker" in new WithApplication {

@@ -13,12 +13,14 @@ import twitter4j.Twitter
 
 object Application
     extends ApplicationController
-    with TwitterServiceComponentImpl {
-  lazy val twitter: Twitter = ShiningLine.twitter
+    with TwitterServiceComponent
+    with StickersServiceComponent {
+  lazy val twitterService: TwitterService = ShiningLine.twitterService
+  lazy val stickersService: StickersService = ShiningLine.stickersService
 }
 
 trait ApplicationController extends Controller {
-  this: TwitterServiceComponent =>
+  this: TwitterServiceComponent with StickersServiceComponent =>
 
   implicit val context = play.api.libs.concurrent.Execution.Implicits.defaultContext
 

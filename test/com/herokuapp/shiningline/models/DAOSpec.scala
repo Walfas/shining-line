@@ -8,10 +8,7 @@ import play.api.test.Helpers._
 
 class DAOSpec extends Specification {
   "DAO" should {
-    val fakeApp: FakeApplication =
-      FakeApplication(additionalConfiguration = inMemoryDatabase())
-
-    "work as expected" in new WithApplication(fakeApp) {
+    "work as expected" in new WithApplication {
       val dao = new DAO(DB.driver)
 
       DB.withSession { implicit s: Session =>
