@@ -66,6 +66,11 @@ class ManagerActor(dbActor: ActorRef, twitterActor: ActorRef) extends Actor {
       completeRequest(id, response)
     }
 
+    case TwitterActor.TweetFailure(id, e) => {
+      val response = StickerFailure(e)
+      completeRequest(id, response)
+    }
+
     case _ => // Ignore
   }
 
