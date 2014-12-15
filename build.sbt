@@ -6,6 +6,8 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 scalaVersion := "2.11.4"
 
+sources in doc in Compile := List()
+
 libraryDependencies ++= Seq(
   cache,
   ws,
