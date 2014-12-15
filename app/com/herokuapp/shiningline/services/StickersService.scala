@@ -32,8 +32,20 @@ class SlickStickersService(
   }
 
   def save(sticker: Sticker): Unit = {
+    val existing: Option[Sticker] = find(
+      sticker.stickerVersion,
+      sticker.packageId,
+      sticker.stickerId)
+
+    if (existing.nonEmpty && existing.get == sticker) {
+      return // Sticker already exists, so do nothing
+    }
+
     db.withSession { implicit session =>
-      dao.stickers.insertOrUpdate(sticker).run
+      if (existing.isEmpty)
+        dao.stickers.insert(sticker).run
+      else
+        dao.stickers.update(sticker).run
     }
   }
 
